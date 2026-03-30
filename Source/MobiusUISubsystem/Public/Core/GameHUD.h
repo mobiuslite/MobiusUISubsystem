@@ -27,6 +27,9 @@ public:
 	
 	virtual void BeginPlay() override;
 	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerStateAdded(APlayerState* PlayerState);
+	
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)

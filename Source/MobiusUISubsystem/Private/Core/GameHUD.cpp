@@ -21,6 +21,7 @@ void AGameHUD::BeginPlay()
 	if (IsValid(RootClass))
 	{
 		Root = CreateWidget<UHUDRootWidget>(GetOwningPlayerController(), RootClass);
+		Root->SetOwnerHUD(this);
 		Root->AddToViewport();
 	}
 }

@@ -6,6 +6,11 @@
 #include "Widgets/MLCommonActivatableWidget.h"
 #include "Widgets/MLCommonActivatableWidgetStack.h"
 
+void UHUDRootWidget::SetOwnerHUD(AGameHUD* HUD)
+{
+	OwnerHUD = HUD;
+}
+
 UCommonActivatableWidget* UHUDRootWidget::PushWidget(const TSubclassOf<UCommonActivatableWidget> ActivatableWidgetClass)
 {
 	if (!WidgetStack) return nullptr;
