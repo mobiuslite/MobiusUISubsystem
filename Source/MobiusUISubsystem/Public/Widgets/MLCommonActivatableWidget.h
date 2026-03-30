@@ -22,8 +22,17 @@ public:
 	void SetRoot(class UHUDRootWidget* RootWidget);
 	
 	virtual bool NativeOnHandleBackAction() override;
+	virtual void NativeConstruct() override;
+	
+	void OnLocalPlayerStateReady(const APlayerState* PlayerState);
 	
 protected:
+	
+	bool bStateReadySent;
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void BP_OnLocalPlayerStateReady(const APlayerState* PlayerState);
+	
 	UPROPERTY(BlueprintReadOnly)
 	UHUDRootWidget* Root;
 };

@@ -29,6 +29,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void PopWidget(UCommonActivatableWidget* Widget) const;
 	
+	void OnLocalPlayerStateAdded(const APlayerState* PlayerState);
+	
 protected:
 	UPROPERTY(BlueprintReadOnly, meta=(BindWidget))
 	UCanvasPanel* RootCanvas;

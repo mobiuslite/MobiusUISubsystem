@@ -30,3 +30,20 @@ void UHUDRootWidget::PopWidget(UCommonActivatableWidget* Widget) const
 	
 	WidgetStack->RemoveWidget(*Widget);
 }
+
+void UHUDRootWidget::OnLocalPlayerStateAdded(const APlayerState* PlayerState)
+{
+	if (UMLCommonActivatableWidget* Widget = Cast<UMLCommonActivatableWidget>(WidgetStack->GetRootContent()))
+	{
+		Widget->OnLocalPlayerStateReady(PlayerState);
+	}
+	
+	const TArray<UCommonActivatableWidget*>& WidgetList = WidgetStack->GetWidgetList();
+	for (int i = 0; i < WidgetList.Num(); ++i)
+	{
+		if (UMLCommonActivatableWidget* Widget = Cast<UMLCommonActivatableWidget>(WidgetList[i]))
+		{
+			Widget->OnLocalPlayerStateReady(PlayerState);
+		}
+	}
+}

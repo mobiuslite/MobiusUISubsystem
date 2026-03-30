@@ -23,5 +23,23 @@ void AGameHUD::BeginPlay()
 		Root = CreateWidget<UHUDRootWidget>(GetOwningPlayerController(), RootClass);
 		Root->SetOwnerHUD(this);
 		Root->AddToViewport();
+		
+		if (QueuedPlayerState)
+		{
+			Root->OnLocalPlayerStateAdded(QueuedPlayerState);
+			QueuedPlayerState = nullptr;
+		}
+	}
+}
+
+void AGameHUD::OnPlayerStateAdded_Implementation(const APlayerState* PlayerState)
+{
+	if (Root)
+	{
+		Root->OnLocalPlayerStateAdded(PlayerState);
+	}
+	else
+	{
+		QueuedPlayerState = PlayerState;
 	}
 }

@@ -27,8 +27,8 @@ public:
 	
 	virtual void BeginPlay() override;
 	
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnPlayerStateAdded(APlayerState* PlayerState);
+	UFUNCTION(BlueprintNativeEvent)
+	void OnPlayerStateAdded(const APlayerState* PlayerState);
 	
 protected:
 	
@@ -37,4 +37,8 @@ protected:
 	
 	UPROPERTY(Transient)
 	UHUDRootWidget* Root;
+	
+	//If the player state is added before the root is added, hold to for when the root is added.
+	UPROPERTY()
+	const APlayerState* QueuedPlayerState;
 };
