@@ -3,6 +3,11 @@
 
 #include "Widgets/HUDRootWidget.h"
 #include "CommonActivatableWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
+#include "Components/CanvasPanel.h"
+#include "Components/CanvasPanelSlot.h"
+#include "Core/GameHUD.h"
+#include "Kismet/GameplayStatics.h"
 #include "Widgets/MLCommonActivatableWidget.h"
 #include "Widgets/MLCommonActivatableWidgetStack.h"
 
@@ -21,6 +26,8 @@ UCommonActivatableWidget* UHUDRootWidget::PushWidget(const TSubclassOf<UCommonAc
 		MLWidget->SetRoot(this);
 	}
 	
+	AGameHUD::SetInputModeGameEnabled(GetWorld(), false, true);
+	
 	return NewWidget;
 }
 
@@ -29,6 +36,26 @@ void UHUDRootWidget::PopWidget(UCommonActivatableWidget* Widget) const
 	if (!WidgetStack) return;
 	
 	WidgetStack->RemoveWidget(*Widget);
+	
+	if (WidgetStack->GetNumActiveWidgets() == 0)
+	{
+		AGameHUD::SetInputModeGameEnabled(GetWorld(), true, true);
+	}
+}
+
+void UHUDRootWidget::PopWidgetByClass(const TSubclassOf<UCommonActivatableWidget> WidgetClass) const
+{
+	if (!IsValid(WidgetClass)) return;
+	if (UCommonActivatableWidget* ActiveWidget = WidgetStack->GetActiveWidgetByClass(WidgetClass))
+	{
+		PopWidget(ActiveWidget);
+	}
+}
+
+bool UHUDRootWidget::IsWidgetActiveByClass(const TSubclassOf<UCommonActivatableWidget> ActivatableWidgetClass) const
+{
+	if (!WidgetStack) return false;
+	return WidgetStack->IsWidgetActiveByClass(ActivatableWidgetClass);
 }
 
 void UHUDRootWidget::OnLocalPlayerStateAdded(const APlayerState* PlayerState)
@@ -45,5 +72,50 @@ void UHUDRootWidget::OnLocalPlayerStateAdded(const APlayerState* PlayerState)
 		{
 			Widget->OnLocalPlayerStateReady(PlayerState);
 		}
+	}
+}
+
+void UHUDRootWidget::RegisterActorWidget(const AActor* Actor, UTexture2D* Texture, const FVector& Offset)
+{
+	ensure(IsValid(ActorWidgetClass));
+	
+	if (!Actor || !Texture) return;
+	
+	UUserWidget* NewWidget = CreateWidget(this, ActorWidgetClass);
+	if (!NewWidget) return;
+	
+	UCanvasPanelSlot* NewSlot = GetCanvasPanel()->AddChildToCanvas(NewWidget);
+	NewSlot->SetAlignment(FVector2D(0.5f));
+	NewSlot->SetAutoSize(true);
+	
+	FActorWidgetInfo Info;
+	Info.Actor = Actor;
+	Info.CanvasSlot = NewSlot;
+	Info.Offset = Offset;
+	Info.Widget = NewWidget;
+	
+	ActorWidgets.Add(Info);
+}
+
+void UHUDRootWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+	
+	for (int i = 0; i < ActorWidgets.Num();)
+	{
+		FActorWidgetInfo& Info = ActorWidgets[i];
+		if (!Info.Actor)
+		{
+			ActorWidgets.RemoveAt(i);
+			continue;
+		}
+		
+		FVector2D ScreenPosition;
+		const APlayerController* Controller = UGameplayStatics::GetPlayerController(GetWorld(), 0); 
+		UWidgetLayoutLibrary::ProjectWorldLocationToWidgetPosition(Controller, Info.Actor->GetActorLocation() + Info.Offset, ScreenPosition, false);
+		
+		Info.CanvasSlot->SetPosition(ScreenPosition);
+		
+		i++;
 	}
 }

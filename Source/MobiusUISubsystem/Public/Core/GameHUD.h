@@ -30,6 +30,11 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	void OnPlayerStateAdded(const APlayerState* PlayerState);
 	
+	UFUNCTION(BlueprintCallable, meta=( WorldContext="WorldContextObject"))
+	static void SetInputModeGameEnabled(const UObject* WorldContextObject, const bool bGameOnlyEnabled, const bool bFlushInput);
+	UFUNCTION(BlueprintCallable, BlueprintPure, meta = (DefaultToSelf="Controller"))
+	static AGameHUD* GetGameHUD(const AController* Controller);
+	
 protected:
 	
 	UPROPERTY(EditDefaultsOnly)

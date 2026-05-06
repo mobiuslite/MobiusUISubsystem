@@ -6,7 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "ToastWidget.generated.h"
 
-UENUM()
+UENUM(BlueprintType)
 enum EToastState
 {
 	None,
@@ -30,14 +30,18 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure)
 	float GetLifespan() const { return Lifespan;}
 	
-	void InitializeToast(const FString& Message);
+	void InitializeToast(const FString& Message, const bool bIsManualToast);
 	//Return true marks toast for removal
 	bool Tick(const float DeltaTime);
+	
+	void SetStateToClosing();
 	
 protected:
 	
 	UPROPERTY(BlueprintReadOnly)
 	FString ToastMessage;
+	UFUNCTION(BlueprintNativeEvent)
+	void SetToastMessage(const FString& Message);
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void OnStateChange(const EToastState NewState);
@@ -46,6 +50,8 @@ protected:
 	TEnumAsByte<EToastState> State;
 	
 	float StateTimer;
+	
+	bool bIsManual;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly);
 	float Lifespan = 2.0f;
